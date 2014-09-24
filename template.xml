@@ -1,0 +1,35 @@
+<Map
+  maximum-extent="@TILE@"
+ >
+
+<Parameters>
+</Parameters>
+
+<Style name="layer0" filter-mode="first">
+  <Rule>
+    <PolygonSymbolizer />
+    <LineSymbolizer />
+  </Rule>
+</Style>
+<Layer name="layer0">
+    <StyleName>layer0</StyleName>
+    <Datasource>
+       <Parameter name="type"><![CDATA[postgis]]></Parameter>
+       <Parameter name="extent">-20037508.3,-20037508.3,20037508.3,20037508.3</Parameter>
+       <Parameter name="dbname"><![CDATA[cartodb_dev_user_ccf8c572-5ff6-46cf-8bba-0bd68a1f9432_db]]></Parameter>
+       <Parameter name="user"><![CDATA[development_cartodb_user_ccf8c572-5ff6-46cf-8bba-0bd68a1f9432]]></Parameter>
+       <Parameter name="host"><![CDATA[127.0.0.1]]></Parameter>
+       <Parameter name="port"><![CDATA[5493]]></Parameter>
+<!--
+       <Parameter name="grid_geometries">false</Parameter>
+       <Parameter name="clip_geometries_min_resolution">130</Parameter>
+       <Parameter name="simplify_geometries_max_resolution">600</Parameter>
+-->
+       <Parameter name="clip_geometries">@CLIP@</Parameter>
+       <Parameter name="simplify_geometries">@SIMP@</Parameter>
+       <Parameter name="geometry_field">the_geom_webmercator</Parameter>
+       <Parameter name="table">@TABLE@</Parameter>
+    </Datasource>
+  </Layer>
+
+</Map>

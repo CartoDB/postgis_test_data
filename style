@@ -1,0 +1,21 @@
+#!/bin/sh
+
+test -n "$2" || {
+  echo "Usage: $0 <table> <z>" 2>&1
+  exit 1
+}
+
+table="$1"
+zoom="$2"
+
+dir=`dirname $0`
+tile=`$dir/tile ${zoom}`
+
+simp=false
+clip=false
+
+cat template.xml | sed \
+  -e "s/@TABLE@/${table}/" \
+  -e "s/@TILE@/${tile}/" \
+  -e "s/@SIMP@/${simp}/" \
+  -e "s/@CLIP@/${clip}/"

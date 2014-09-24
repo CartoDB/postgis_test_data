@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import sys, math
+
+# Size of each tile in pixels (1:1 aspect ratio)
+tile_size = 256;
+
+# Earth equatorial circumference in meters (according to wikipedia)
+earth_circumference = 40075017.0;
+
+def resolution(z):
+
+  full_resolution = earth_circumference/tile_size
+  #print 'Full res: ' + str(full_resolution)
+
+  return full_resolution / pow(2,z)
+
+def extent(z,x,y):
+
+  #print 'Z: ' + str(z)
+
+  initial_resolution = resolution(0)
+  #print 'Init res: ' + str(initial_resolution)
+
+  origin_shift = (initial_resolution * tile_size) / 2.0
+
+  pixres = initial_resolution / pow(2,z);
+  #print 'Pix res: ' + str(pixres)
+
+  tile_geo_size = tile_size * pixres
+
+  xmin = -origin_shift + x*tile_geo_size
+  xmax = -origin_shift + (x+1)*tile_geo_size
+
+  ymin = origin_shift - y*tile_geo_size;
+  ymax = origin_shift - (y+1)*tile_geo_size;
+
+  return xmin, ymin, xmax, ymax
+ 
+if 1 == len(sys.argv):
+  sys.stderr.write("Usage: " + sys.argv[0] + " <z>\n"), exit(1)
+
+
+z=int(sys.argv[1])
+x=int(math.floor(pow(2,z)/2))
+y=x
+
+ext=extent(z,x,y)
+print str(ext[0]) + "," + str(ext[1]) + "," + str(ext[2]) + "," + str(ext[3])
