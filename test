@@ -1,0 +1,39 @@
+#!/bin/sh
+
+test -n "$2" || {
+  echo "Usage: $0 <table> <z1> [<z2> ...]" 2>&1
+  exit 1
+}
+
+table="$1"; shift
+tname=`echo ${table} | sed 's/^case_//'`
+iterations=5
+
+dir=`dirname $0`
+#for z in `seq 0 2 10`; do
+for z in $@; do
+  base=0
+  #echo -n "T ${tname} Z${z} "
+  for simp in "" "simp"; do
+    for clip in "" "clip"; do
+      style_fname="/tmp/${table}_z${z}_${simp}_${clip}.xml"
+      echo "STYLE: ${style_fname}" >&2
+      $dir/style "$table" ${z} ${simp} ${clip} > "${style_fname}"
+      timing=`mapnik-speed-check "${style_fname}" ${iterations}`
+      # min: 11.686ms | avg: 12.100ms | total: 0.0483s
+      avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
+      if expr ${base} = 0; then
+        base=$avg
+        rel=1
+        rels=""
+      else
+        rel=`echo "scale=4; ${avg}/${base}" | bc`
+        rels="(* ${rel})"
+      fi
+      #echo -n "${simp}${clip}:${avg} "
+      echo "T ${tname} Z${z} ${avg} ${simp} ${clip} ${rels}"
+    done
+  done
+  #echo 
+done
+

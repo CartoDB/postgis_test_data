@@ -1,20 +1,32 @@
 #!/bin/sh
 
 test -n "$2" || {
-  echo "Usage: $0 <table> <z>" 2>&1
+  echo "Usage: $0 <table> <z>" >&2
   exit 1
 }
 
-table="$1"
-zoom="$2"
-
 dir=`dirname $0`
-tile=`$dir/tile ${zoom}`
+table="$1"; shift
+zoom="$1"; shift
 
 simp=false
 clip=false
 
-cat template.xml | sed \
+while test -n "$1"; do
+  if test "$1" = "simp"; then
+    simp=true
+  elif test "$1" = "clip"; then
+    clip=true
+  else
+    echo "Unsupported argument $1" >&2
+  fi
+  shift
+done
+
+echo "table:${table} zoom:${zoom} simp:${simp} clip:${clip}" >&2
+
+tile=`$dir/tile ${zoom}`
+cat ${dir}/template.xml | sed \
   -e "s/@TABLE@/${table}/" \
   -e "s/@TILE@/${tile}/" \
   -e "s/@SIMP@/${simp}/" \

@@ -32,8 +32,8 @@ def extent(z,x,y):
   xmin = -origin_shift + x*tile_geo_size
   xmax = -origin_shift + (x+1)*tile_geo_size
 
-  ymin = origin_shift - y*tile_geo_size;
-  ymax = origin_shift - (y+1)*tile_geo_size;
+  ymin = origin_shift - (y+1)*tile_geo_size;
+  ymax = origin_shift - y*tile_geo_size;
 
   return xmin, ymin, xmax, ymax
  

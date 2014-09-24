@@ -17,7 +17,9 @@
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
        <Parameter name="extent">-20037508.3,-20037508.3,20037508.3,20037508.3</Parameter>
        <Parameter name="dbname"><![CDATA[cartodb_dev_user_ccf8c572-5ff6-46cf-8bba-0bd68a1f9432_db]]></Parameter>
+<!--
        <Parameter name="user"><![CDATA[development_cartodb_user_ccf8c572-5ff6-46cf-8bba-0bd68a1f9432]]></Parameter>
+-->
        <Parameter name="host"><![CDATA[127.0.0.1]]></Parameter>
        <Parameter name="port"><![CDATA[5493]]></Parameter>
 <!--
