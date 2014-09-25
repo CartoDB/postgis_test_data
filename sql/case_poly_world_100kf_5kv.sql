@@ -1,4 +1,4 @@
--- poly_low_density_big_set_little_vertex
+-- poly_low_density_big_set_many_vertex
 DROP TABLE IF EXISTS case_poly_world_100kf_5kv;
 CREATE TABLE case_poly_world_100kf_5kv (
   cartodb_id serial primary key, the_geom_webmercator geometry
