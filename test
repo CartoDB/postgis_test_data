@@ -5,33 +5,51 @@ test -n "$2" || {
   exit 1
 }
 
+dir=`dirname $0`
+
 table="$1"; shift
 tname=`echo ${table} | sed 's/^case_//'`
 iterations=5
 
-dir=`dirname $0`
+PGHOST=`grep host $dir/template.xml | sed -e 's/.*CDATA\[//' -e 's/]].*//'`
+PGPORT=`grep port $dir/template.xml | sed -e 's/.*CDATA\[//' -e 's/]].*//'`
+PGDATABASE=`grep dbname $dir/template.xml | sed -e 's/.*CDATA\[//' -e 's/]].*//'`
+#echo "HOST: $PGHOST PORT: $PGPORT DBNAME: $PGDATABASE"  && exit 1
+##PGUSER=`grep user $dir/template.xml | sed -e 's/.*CDATA\[//' -e 's/]].*//'`
+export PGHOST PGPORT PGDATABASE
+#geom=`grep geometry_field $dir/template.xml | sed -e 's/">//' -e 's/<.*//'`
+
+pglog=/tmp/pg93.log
+
 #for z in `seq 0 2 10`; do
 for z in $@; do
   base=0
   #echo -n "T ${tname} Z${z} "
+  ext=`$dir/tile ${z}`
   for simp in "" "simp"; do
     for clip in "" "clip"; do
       style_fname="/tmp/${table}_z${z}_${simp}_${clip}.xml"
       echo "STYLE: ${style_fname}" >&2
       $dir/style "$table" ${z} ${simp} ${clip} > "${style_fname}"
       timing=`mapnik-speed-check "${style_fname}" ${iterations}`
+      sql=`tail $pglog | grep execute | tail -1 | sed 's/.*>: //' | sed 's/ST_AsBinary/ST_NPoints/'`
+      echo "SQL: $sql" >&2
+      npts=`echo "SELECT sum(geom) from ( $sql ) as foo" | psql -XtA`
+  #sql="SELECT sum(st_npoints($geom)) as orig, sum(st_npoints(st_simplify(
       # min: 11.686ms | avg: 12.100ms | total: 0.0483s
       avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
-      if expr ${base} = 0; then
+      if expr ${base} = 0 > /dev/null; then
         base=$avg
-        rel=1
+        basep=$npts
+        relt=1; relp=1
         rels=""
       else
-        rel=`echo "scale=4; ${avg}/${base}" | bc`
-        rels="(* ${rel})"
+        relt=`echo "scale=2; ${avg}/${base}" | bc`
+        relp=`echo "scale=2; ${npts}/${basep}" | bc`
+        rels="(* ${relt}ms / * ${relp}pts)"
       fi
       #echo -n "${simp}${clip}:${avg} "
-      echo "T ${tname} Z${z} ${avg} ${simp} ${clip} ${rels}"
+      echo "T ${tname} Z${z} ${avg}ms ${npts}pts ${simp} ${clip} ${rels}"
     done
   done
   #echo 

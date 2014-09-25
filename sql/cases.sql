@@ -158,3 +158,6 @@ CREATE TABLE case_poly_city_100kf_10v AS SELECT
   -- City is 1/1000 the world's size
   ST_Scale(the_geom_webmercator, 0.001, 0.001) as the_geom_webmercator
 FROM case_poly_world_100kf_10v;
+
+-- polygons_small_set_1M_vertex
+\i case_poly_world_10f_1mv.sql
