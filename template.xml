@@ -7,7 +7,15 @@
 
 <Style name="layer0" filter-mode="first">
   <Rule>
+    <Filter>[mapnik::geometry_type]=point</Filter> 
+      <MarkerSymbolizer />
+  </Rule>
+  <Rule>
+    <Filter>[mapnik::geometry_type]=polygon</Filter> 
     <PolygonSymbolizer />
+  </Rule>
+  <Rule>
+    <Filter>[mapnik::geometry_type]=line</Filter> 
     <LineSymbolizer />
   </Rule>
 </Style>
