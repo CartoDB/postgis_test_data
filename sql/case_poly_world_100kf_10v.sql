@@ -46,5 +46,3 @@ CREATE INDEX ON case_poly_world_100kf_10v USING GiST (the_geom_webmercator);
 
 SELECT count(*), avg(st_npoints(the_geom_webmercator)) from case_poly_world_100kf_10v;
 
-
-
