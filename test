@@ -33,25 +33,35 @@ for z in $@; do
         echo "STYLE: ${style_fname}" >&2
         $dir/style "$table" ${z} ${simp} ${clip} ${grid} > "${style_fname}"
         timing=`mapnik-speed-check "${style_fname}" ${iterations}`
-        sql=`tail $pglog | grep execute | tail -1 | sed 's/.*>: //' | sed 's/ST_AsBinary/ST_NPoints/'`
+        lastlog=`tail $pglog | grep execute | tail -1`
+        qtime=`echo "$lastlog" | sed -e 's/.*duration: //;s/ ms.*//'`
+        sql=`echo "$lastlog" | sed 's/.*>: //' | sed 's/ST_AsBinary/postgis_noop/'`
         echo "SQL: $sql" >&2
-        npts=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(geom) from ( $sql ) as foo" | psql -XtA | grep -v SET`
+        res=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(st_npoints(geom)), sum(octet_length(st_asbinary(geom))) from ( $sql ) as foo" | psql -XtA | grep -v SET`
+        # res would look like "1|21"
+        npts=`echo $res | cut -d'|' -f1`
         test -z "$npts" && npts=0
+        nbytes=`echo $res | cut -d'|' -f2`
     #sql="SELECT sum(st_npoints($geom)) as orig, sum(st_npoints(st_simplify(
         # min: 11.686ms | avg: 12.100ms | total: 0.0483s
         avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
         if expr "${base}" = 0 > /dev/null; then
           base=$avg
           basep=$npts
-          relt=1; relp=1
+          baseb=$nbytes
+          baseqt=$qtime
+          relt=1; relp=1; relb=1; relqt=1
           #rels="* 1"
         else
-          relt=`echo "scale=2; ${avg}/${base}" | bc`
-          relp=`echo "scale=2; ${npts}/${basep}" | bc`
+          relt=`echo "scale=3; ${avg}/${base}" | bc`
+          relp=`echo "scale=3; ${npts}/${basep}" | bc`
+          relb=`echo "scale=3; ${nbytes}/${baseb}" | bc`
+          relqt=`echo "scale=3; ${qtime}/${baseqt}" | bc`
           #rels="* ${relt}ms / * ${relp}pts)"
         fi
         #echo -n "${simp}${clip}:${avg} "
-        echo "T ${tname} Z${z} ${avg}ms * ${relt} ${npts}pts * ${relp} ${clip} ${grid} ${simp}"
+#T lines_world_1kf_5kv Z0 331.64ms * .242 583021pts * .109 9337930b $ .109  grid
+        echo "T ${tname} Z${z} ${avg}ms * ${relt} | ${qtime}qms * ${relqt} | ${npts}pts * ${relp} | ${nbytes}b * ${relb} | ${clip} ${grid} ${simp}"
       done
     done
   done
