@@ -31,10 +31,10 @@
        <Parameter name="host"><![CDATA[127.0.0.1]]></Parameter>
        <Parameter name="port"><![CDATA[5493]]></Parameter>
 <!--
-       <Parameter name="grid_geometries">false</Parameter>
        <Parameter name="clip_geometries_min_resolution">130</Parameter>
        <Parameter name="simplify_geometries_max_resolution">600</Parameter>
 -->
+       <Parameter name="grid_geometries">@GRID@</Parameter>
        <Parameter name="clip_geometries">@CLIP@</Parameter>
        <Parameter name="simplify_geometries">@SIMP@</Parameter>
        <Parameter name="geometry_field">the_geom_webmercator</Parameter>

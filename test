@@ -28,29 +28,31 @@ for z in $@; do
   ext=`$dir/tile ${z}`
   for simp in "" "simp"; do
     for clip in "" "clip"; do
-      style_fname="/tmp/${table}_z${z}_${simp}_${clip}.xml"
-      echo "STYLE: ${style_fname}" >&2
-      $dir/style "$table" ${z} ${simp} ${clip} > "${style_fname}"
-      timing=`mapnik-speed-check "${style_fname}" ${iterations}`
-      sql=`tail $pglog | grep execute | tail -1 | sed 's/.*>: //' | sed 's/ST_AsBinary/ST_NPoints/'`
-      echo "SQL: $sql" >&2
-      npts=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(geom) from ( $sql ) as foo" | psql -XtA | grep -v SET`
-      test -z $npts && npts=0
-  #sql="SELECT sum(st_npoints($geom)) as orig, sum(st_npoints(st_simplify(
-      # min: 11.686ms | avg: 12.100ms | total: 0.0483s
-      avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
-      if expr "${base}" = 0 > /dev/null; then
-        base=$avg
-        basep=$npts
-        relt=1; relp=1
-        rels=""
-      else
-        relt=`echo "scale=2; ${avg}/${base}" | bc`
-        relp=`echo "scale=2; ${npts}/${basep}" | bc`
-        rels="(* ${relt}ms / * ${relp}pts)"
-      fi
-      #echo -n "${simp}${clip}:${avg} "
-      echo "T ${tname} Z${z} ${avg}ms ${npts}pts ${simp} ${clip} ${rels}"
+      for grid in "" "grid"; do
+        style_fname="/tmp/${table}_z${z}_${clip}_${grid}_${simp}.xml"
+        echo "STYLE: ${style_fname}" >&2
+        $dir/style "$table" ${z} ${simp} ${clip} ${grid} > "${style_fname}"
+        timing=`mapnik-speed-check "${style_fname}" ${iterations}`
+        sql=`tail $pglog | grep execute | tail -1 | sed 's/.*>: //' | sed 's/ST_AsBinary/ST_NPoints/'`
+        echo "SQL: $sql" >&2
+        npts=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(geom) from ( $sql ) as foo" | psql -XtA | grep -v SET`
+        test -z "$npts" && npts=0
+    #sql="SELECT sum(st_npoints($geom)) as orig, sum(st_npoints(st_simplify(
+        # min: 11.686ms | avg: 12.100ms | total: 0.0483s
+        avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
+        if expr "${base}" = 0 > /dev/null; then
+          base=$avg
+          basep=$npts
+          relt=1; relp=1
+          #rels="* 1"
+        else
+          relt=`echo "scale=2; ${avg}/${base}" | bc`
+          relp=`echo "scale=2; ${npts}/${basep}" | bc`
+          #rels="* ${relt}ms / * ${relp}pts)"
+        fi
+        #echo -n "${simp}${clip}:${avg} "
+        echo "T ${tname} Z${z} ${avg}ms * ${relt} ${npts}pts * ${relp} ${clip} ${grid} ${simp}"
+      done
     done
   done
   #echo 

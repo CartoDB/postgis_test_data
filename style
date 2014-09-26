@@ -11,12 +11,15 @@ zoom="$1"; shift
 
 simp=false
 clip=false
+grid=false
 
 while test -n "$1"; do
   if test "$1" = "simp"; then
     simp=true
   elif test "$1" = "clip"; then
     clip=true
+  elif test "$1" = "grid"; then
+    grid=true
   else
     echo "Unsupported argument $1" >&2
   fi
@@ -29,5 +32,6 @@ tile=`$dir/tile ${zoom}`
 cat ${dir}/template.xml | sed \
   -e "s/@TABLE@/${table}/" \
   -e "s/@TILE@/${tile}/" \
+  -e "s/@GRID@/${grid}/" \
   -e "s/@SIMP@/${simp}/" \
   -e "s/@CLIP@/${clip}/"
