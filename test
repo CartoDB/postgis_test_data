@@ -34,11 +34,12 @@ for z in $@; do
       timing=`mapnik-speed-check "${style_fname}" ${iterations}`
       sql=`tail $pglog | grep execute | tail -1 | sed 's/.*>: //' | sed 's/ST_AsBinary/ST_NPoints/'`
       echo "SQL: $sql" >&2
-      npts=`echo "SELECT sum(geom) from ( $sql ) as foo" | psql -XtA`
+      npts=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(geom) from ( $sql ) as foo" | psql -XtA | grep -v SET`
+      test -z $npts && npts=0
   #sql="SELECT sum(st_npoints($geom)) as orig, sum(st_npoints(st_simplify(
       # min: 11.686ms | avg: 12.100ms | total: 0.0483s
       avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
-      if expr ${base} = 0 > /dev/null; then
+      if expr "${base}" = 0 > /dev/null; then
         base=$avg
         basep=$npts
         relt=1; relp=1
