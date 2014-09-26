@@ -15,7 +15,7 @@
     <PolygonSymbolizer />
   </Rule>
   <Rule>
-    <Filter>[mapnik::geometry_type]=line</Filter> 
+    <Filter>[mapnik::geometry_type]=linestring</Filter> 
     <LineSymbolizer />
   </Rule>
 </Style>
