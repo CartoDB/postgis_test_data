@@ -1,0 +1,6 @@
+#!/bin/sh
+
+test -n "$1" || echo "Usage: $0 <logfile>" >&2 && exit 1
+
+logfile="$1"
+grep ^T ${logfile} | sort -k3.3n -k4n
