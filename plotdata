@@ -1,0 +1,26 @@
+#!/bin/sh
+
+test -n "$1" || { echo "Usage: $0 <analfile>" >&2 && exit 1; }
+
+analfile="$1"
+tab=`dirname ${analfile}`/`basename ${analfile} .anal`
+
+grep '| *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata
+
+grep '| *grid *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.grid
+
+grep '| *simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.simp
+
+grep '| *clip *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.clip
+
+grep '| *clip grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.clip_grid_simp
