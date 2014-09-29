@@ -3,31 +3,51 @@
 #                                            , \
 #     (x/6)**2 title 'x/6-squared' with dots
 
+tabname="$1"
+`dirname $0`/analize ${tabname}.log > ${tabname}.anal
+`dirname $0`/plotdata ${tabname}.anal
+
 # Z ms     qms       bytes
 # 0 15233. 14498.893 145620583
+col="2" # by default we show ms
+# but can be overridden!
+if test -n "$2"; then col="$2"; fi
 
-tabname="$1"
+outsuffix=""
+case $col in
+  2|ms) ylabel="rendering time (ms)"; col=2;;
+  3|qms) ylabel="query time (ms)"; outsuffix="-qms"; col=3;;
+  4|b*|kb) ylabel="payload (kb)"; outsuffix="-kb"; col=4;;
+  *) echo "Invalid column spec (use 2,3,4,ms,qms,kb)";;
+esac
 
-data=${tabname}.plotdata
-data_clip=${tabname}.plotdata.clip
-data_simp=${tabname}.plotdata.simp
-data_grid=${tabname}.plotdata.grid
-data_cgs=${tabname}.plotdata.clip_grid_simp
+from=0
+if test -n "$3"; then
+  from="$3"
+  outsuffix="$outsuffix+${from}"
+fi
 
-plot_out=${tabname}.plot.png
+plot_out=${tabname}.plot${outsuffix}.png
 
-gnuplot -p <<EOF
+#gnuplot -p <<EOF
+{
+cat <<EOF
 set title "${tabname}"
 set xlabel "zoom level"
-set ylabel "rendering time (ms)"
 set terminal png size 1024,800 font "Helvetica,20"
 set output "${plot_out}"
-plot '${data}' using (\$1):(\$2) title 'vanilla' with lines, \
-     '${data_clip}' using (\$1):(\$2) title 'clip' with lines, \
-     '${data_simp}' using (\$1):(\$2) title 'simp' with lines, \
-     '${data_grid}' using (\$1):(\$2) title 'grid' with linespoint, \
-     '${data_gcs}' using (\$1):(\$2) title 'clip,grid,simp' with lines
 EOF
+echo "set ylabel '${ylabel}'"
+echo -n "plot "
+sep=""
+for dat in ${tabname}.plotdata*; do
+  title=`echo ${dat} | sed 's/.*\.//'`
+  if test "$title" = 'plotdata'; then title=vanilla; fi
+  echo -n "${sep}'${dat}' every ::${from} using (\$1):(\$${col}) title '${title}' with lines "
+  #echo -n ",'${dat}' using (\$1):(\$3) title '${title} pl' with points axes x1y2 "
+  sep=", "
+done
+} | tee ${tabname}.plot.cmd | gnuplot -p
 
 echo "Saved to $plot_out"
-eog $plot_out
+eog $plot_out &
