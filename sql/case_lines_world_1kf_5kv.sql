@@ -2,7 +2,7 @@
 -- lines_low_density_small_set_many_vertex
 DROP TABLE IF EXISTS case_lines_world_1kf_5kv;
 CREATE TABLE case_lines_world_1kf_5kv AS
-WITH curve_flat AS (
+WITH curve AS (
   SELECT
       ST_Segmentize(
         ST_OffsetCurve(
@@ -16,7 +16,6 @@ WITH curve_flat AS (
 )
 SELECT
   row_number() over() as cartodb_id,
-
   ST_Translate(g, x, y) as the_geom_webmercator
 FROM 
    curve,
