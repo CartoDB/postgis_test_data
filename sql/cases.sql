@@ -37,27 +37,7 @@ FROM case_points_world_2mf;
 CREATE INDEX ON case_points_city_2mf USING GIST (the_geom_webmercator);
 
 -- lines_low_density_small_set_little_vertex
-DROP TABLE IF EXISTS case_lines_world_1kf_10v;
-CREATE TABLE case_lines_world_1kf_10v AS SELECT
-  row_number() over() as cartodb_id,
-  ST_SetSRID(
-    ST_SetPoint(
-      ST_SetPoint(
-        ST_Segmentize(
-          ST_MakeLine(
-            ST_MakePoint(x,y),
-            ST_MakePoint(x+400000, y+100000)
-          ), 50000),
-        2, ST_MakePoint(x+1000,y+100000) -- perturbate the line
-      ),
-      7, ST_MakePoint(x+200000,y) -- perturbate the line
-    ),
-    3857
-  ) as the_geom_webmercator
-FROM 
-   generate_series(-20037500, 20037500, 1300000) x,
-   generate_series(-20037500, 20037500, 1200000) y;
-CREATE INDEX ON case_lines_world_1kf_10v USING GIST (the_geom_webmercator);
+\i case_lines_world_1kf_10v.sql
 
 -- lines_high_density_small_set_little_vertex
 DROP TABLE IF EXISTS case_lines_city_1kf_10v;
