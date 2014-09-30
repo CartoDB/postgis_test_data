@@ -24,3 +24,11 @@ grep '| *clip *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
 grep '| *clip grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.clip_grid_simp
+
+grep '| *grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.grid_simp
+
+grep '| *clip  simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.clip_simp
