@@ -27,13 +27,14 @@ while test -n "$1"; do
 done
 
 gf="the_geom_webmercator" # TODO: read from template.xml
-if test -n "$clip"; then
+expr=''
+if test "$clip" = 'true'; then
   expr='ST_ClipByBox2D('$gf', !bbox!)'
 fi
-if test -n "$grid"; then
+if test "$grid" = 'true'; then
   expr='ST_SnapToGrid('$expr', greatest(!pixel_height!,!pixel_width!)/20.0)'
 fi
-if test -n "$simp"; then
+if test "$simp" = 'true'; then
   expr='ST_Simplify('$expr', greatest(!pixel_height!,!pixel_width!)/20.0)'
 fi
 tabexpr="( SELECT ${expr} ${gf} FROM ${table} WHERE ${gf} && "'!bbox! ) bar'
