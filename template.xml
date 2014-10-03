@@ -33,12 +33,16 @@
 <!--
        <Parameter name="clip_geometries_min_resolution">130</Parameter>
        <Parameter name="simplify_geometries_max_resolution">600</Parameter>
--->
+       <Parameter name="grid_geometries_max_resolution">600</Parameter>
+       <Parameter name="simplify_geometries_factor">1</Parameter>
+       <Parameter name="grid_geometries_factor">1</Parameter>
        <Parameter name="grid_geometries">@GRID@</Parameter>
        <Parameter name="clip_geometries">@CLIP@</Parameter>
        <Parameter name="simplify_geometries">@SIMP@</Parameter>
+       <Parameter name="geometry_display_expression"><![CDATA[@EXPR@]]></Parameter>
+-->
        <Parameter name="geometry_field">the_geom_webmercator</Parameter>
-       <Parameter name="table">@TABLE@</Parameter>
+       <Parameter name="table"><![CDATA[@TABLE@]]></Parameter>
     </Datasource>
   </Layer>
 

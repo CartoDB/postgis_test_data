@@ -32,6 +32,9 @@ for z in $@; do
         style_fname="/tmp/${table}_z${z}_${clip}_${grid}_${simp}.xml"
         echo "STYLE: ${style_fname}" >&2
         $dir/style "$table" ${z} ${simp} ${clip} ${grid} > "${style_fname}"
+        if test $? != 0; then
+          exit 1
+        fi
         timing=`mapnik-speed-check "${style_fname}" ${iterations}`
         lastlog=`tail $pglog | grep execute | tail -1`
         qtime=`echo "$lastlog" | sed -e 's/.*duration: //;s/ ms.*//'`

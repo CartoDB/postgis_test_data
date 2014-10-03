@@ -26,12 +26,33 @@ while test -n "$1"; do
   shift
 done
 
+gf="the_geom_webmercator" # TODO: read from template.xml
+if test -n "$clip"; then
+  expr='ST_ClipByBox2D('$gf', !bbox!)'
+fi
+if test -n "$grid"; then
+  expr='ST_SnapToGrid('$expr', greatest(!pixel_height!,!pixel_width!)/20.0)'
+fi
+if test -n "$simp"; then
+  expr='ST_Simplify('$expr', greatest(!pixel_height!,!pixel_width!)/20.0)'
+fi
+tabexpr="( SELECT ${expr} ${gf} FROM ${table} WHERE ${gf} && "'!bbox! ) bar'
+
+# escape table expression
+tabexpr=`echo "${tabexpr}" | sed -e 's/[\/&]/\\\\&/g'`
+
 echo "table:${table} zoom:${zoom} simp:${simp} clip:${clip}" >&2
+#echo "tabexpr:${tabexpr}" >&2
+
+#exit 1
 
 tile=`$dir/tile ${zoom}`
 cat ${dir}/template.xml | sed \
-  -e "s/@TABLE@/${table}/" \
+  -e "s/@TABLE@/${tabexpr}/" \
   -e "s/@TILE@/${tile}/" \
+
+: \
+  -e "s/@EXPR@/${expr}/" \
   -e "s/@GRID@/${grid}/" \
   -e "s/@SIMP@/${simp}/" \
   -e "s/@CLIP@/${clip}/"

@@ -40,12 +40,14 @@ EOF
 echo "set ylabel '${ylabel}'"
 echo -n "plot "
 sep=""
+t=0
 for dat in ${tabname}.plotdata*; do
   title=`echo ${dat} | sed 's/.*\.//'`
   if test "$title" = 'plotdata'; then title=vanilla; fi
-  echo -n "${sep}'${dat}' every ::${from} using (\$1):(\$${col}) title '${title}' with lines "
+  echo -n "${sep}'${dat}' every ::${from} using (\$1):(\$${col}) title '${title}' with linespoints "
   #echo -n ",'${dat}' using (\$1):(\$3) title '${title} pl' with points axes x1y2 "
   sep=", "
+  t=$((t+1))
 done
 } | tee ${tabname}.plot.cmd | gnuplot -p
 
