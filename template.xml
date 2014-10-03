@@ -42,6 +42,7 @@
        <Parameter name="geometry_display_expression"><![CDATA[@EXPR@]]></Parameter>
 -->
        <Parameter name="geometry_field">the_geom_webmercator</Parameter>
+       <Parameter name="srid"><![CDATA[3857]]></Parameter>
        <Parameter name="table"><![CDATA[@TABLE@]]></Parameter>
     </Datasource>
   </Layer>
