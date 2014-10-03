@@ -27,9 +27,9 @@ while test -n "$1"; do
 done
 
 gf="the_geom_webmercator" # TODO: read from template.xml
-expr=''
+expr="$gf"
 if test "$clip" = 'true'; then
-  expr='ST_ClipByBox2D('$gf', !bbox!)'
+  expr='ST_ClipByBox2D('$expr', !bbox!)'
 fi
 if test "$grid" = 'true'; then
   expr='ST_SnapToGrid('$expr', greatest(!pixel_height!,!pixel_width!)/20.0)'
