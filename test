@@ -40,11 +40,17 @@ for z in $@; do
         qtime=`echo "$lastlog" | sed -e 's/.*duration: //;s/ ms.*//'`
         sql=`echo "$lastlog" | sed 's/.*>: //' | sed 's/ST_AsBinary/postgis_noop/'`
         echo "SQL: $sql" >&2
-        res=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(st_npoints(geom)), sum(octet_length(st_asbinary(geom))) from ( $sql ) as foo" | psql -XtA | grep -v SET`
+#sum(octet_length(st_astwkb(geom,0))) \
+        res=`echo "SET STATEMENT_TIMEOUT TO 0; SELECT sum(st_npoints(geom)), sum(octet_length(st_asbinary(geom))), \
+0 \
+from ( $sql ) as foo" | psql -XtA | grep -v SET`
         # res would look like "1|21"
         npts=`echo $res | cut -d'|' -f1`
         test -z "$npts" && npts=0
         nbytes=`echo $res | cut -d'|' -f2`
+        test -z "$nbytes" && nbytes=0
+        nbytestwkb=`echo $res | cut -d'|' -f3`
+        test -z "$nbytestwkb" && nbytestwkb=0
     #sql="SELECT sum(st_npoints($geom)) as orig, sum(st_npoints(st_simplify(
         # min: 11.686ms | avg: 12.100ms | total: 0.0483s
         avg=`echo "${timing}" | sed 's/.* avg: \([^ ]*\)ms.*/\\1/'`
@@ -52,19 +58,26 @@ for z in $@; do
           base=$avg
           basep=$npts
           baseb=$nbytes
+          basebtwkb=$nbytestwkb
           baseqt=$qtime
           relt=1; relp=1; relb=1; relqt=1
           #rels="* 1"
         else
           relt=`echo "scale=3; ${avg}/${base}" | bc`
+          test -z "$relt" && relt=0
           relp=`echo "scale=3; ${npts}/${basep}" | bc`
+          test -z "$relp" && relp=0
           relb=`echo "scale=3; ${nbytes}/${baseb}" | bc`
+          test -z "$relb" && relb=0
+          relbtwkb=`echo "scale=3; ${nbytestwkb}/${basebtwkb}" | bc`
+          test -z "$relbtwkb" && relbtwkb=0
           relqt=`echo "scale=3; ${qtime}/${baseqt}" | bc`
+          test -z "$relqt" && relqt=0
           #rels="* ${relt}ms / * ${relp}pts)"
         fi
         #echo -n "${simp}${clip}:${avg} "
 #T lines_world_1kf_5kv Z0 331.64ms * .242 583021pts * .109 9337930b $ .109  grid
-        echo "T ${tname} Z${z} ${avg}ms * ${relt} | ${qtime}qms * ${relqt} | ${npts}pts * ${relp} | ${nbytes}b * ${relb} | ${clip} ${grid} ${simp}"
+        echo "T ${tname} Z${z} ${avg}ms * ${relt} | ${qtime}qms * ${relqt} | ${npts}pts * ${relp} | ${nbytes}b * ${relb} | ${nbytestwkb}t * ${relbtwkb} | ${clip} ${grid} ${simp}"
       done
     done
   done

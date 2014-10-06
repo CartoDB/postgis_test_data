@@ -5,30 +5,34 @@ test -n "$1" || { echo "Usage: $0 <analfile>" >&2 && exit 1; }
 analfile="$1"
 tab=`dirname ${analfile}`/`basename ${analfile} .anal`
 
-grep '| *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata
 
-grep '| *grid *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *grid *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.grid
 
-grep '| *simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *simp *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.simp
 
-grep '| *clip *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *clip *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.clip
 
-grep '| *clip grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *clip grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.clip_grid_simp
 
-grep '| *grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *clip grid *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
+  | sed 's/Z//;s/ms//;s/qms//;s/b//' \
+  > ${tab}.plotdata.clip_grid
+
+grep '| *grid simp *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.grid_simp
 
-grep '| *clip  simp *$' ${analfile} | awk '{print $3,$4,$8,$16}' \
+grep '| *clip  simp *$' ${analfile} | awk '{print $3,$4,$8,$16,$20}' \
   | sed 's/Z//;s/ms//;s/qms//;s/b//' \
   > ${tab}.plotdata.clip_simp
